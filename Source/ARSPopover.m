@@ -4,11 +4,9 @@
 //
 //  Created by Yaroslav Arsenkin on 27.05.15.
 //  Copyright (c) 2015 Iaroslav Arsenkin. All rights reserved.
-//  Website: http://arsenkin.com
 //
 
 #import "ARSPopover.h"
-
 
 
 @interface ARSPopover () <UIPopoverPresentationControllerDelegate>
@@ -63,6 +61,14 @@
     CGSize popoverSize = CGSizeMake(width, height);
     
     content(self, popoverSize, presentationArrowHeight);
+    
+    UITableView *tableView = [[UITableView alloc] initWithFrame:self.view.frame];
+    [self.view addSubview:tableView];
+    tableView.backgroundColor = [UIColor clearColor];
+    tableView.backgroundView = nil;
+    tableView.dataSource = self;
+    tableView.delegate = self;
+    tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
 }
 
 #pragma mark - Popover Presentation Controller Delegate
@@ -104,8 +110,50 @@
     return UIModalPresentationNone;
 }
 
-- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller traitCollection:(UITraitCollection *)traitCollection {
-    // This method is called in iOS 8.3 or later regardless of trait collection, in which case use the original presentation style (UIModalPresentationNone signals no adaptation)
-    return UIModalPresentationNone;
+#pragma mark Table View
+
+- (NSInteger) tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return SVOD_FILTER_TYPE_SIZE;
 }
+
+- (CGFloat) tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return 44.0f;
+}
+
+- (UITableViewCell *) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"FilterCell"];
+    
+    SVOD_FILTER_TYPE filter = (SVOD_FILTER_TYPE) indexPath.row;
+    switch (filter) {
+        case tagSVODFilterDefault:
+            cell.textLabel.text = NSLocalizedString(@"item_details_filters_default_text", comment:"");
+            break;
+        case tagSVODFilterDateReleased:
+            cell.textLabel.text = NSLocalizedString(@"item_details_filters_date_released_text", comment:"");
+            break;
+        case tagSVODFilterAlphabeticalAZ:
+            cell.textLabel.text = NSLocalizedString(@"item_details_filters_alphabetical_az_text", comment:"");
+            break;
+        default:
+            break;
+    }
+    cell.backgroundView = nil;
+    cell.backgroundColor = [UIColor clearColor];
+    
+    if (filter == self.currentFilter) {
+        cell.accessoryType = UITableViewCellAccessoryCheckmark;
+    }
+    
+    return cell;
+    
+}
+
+- (void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    [self.delegate updateSelectedFilter:(SVOD_FILTER_TYPE) indexPath.row];
+    
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
 @end

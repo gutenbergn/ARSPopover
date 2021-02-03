@@ -4,11 +4,16 @@
 //
 //  Created by Yaroslav Arsenkin on 27.05.15.
 //  Copyright (c) 2015 Iaroslav Arsenkin. All rights reserved.
-//  Website: http://arsenkin.com
 //
 
 #import <UIKit/UIKit.h>
 
+typedef NS_ENUM(NSUInteger, SVOD_FILTER_TYPE)  {
+    tagSVODFilterDefault,
+    tagSVODFilterDateReleased,
+    tagSVODFilterAlphabeticalAZ,
+    SVOD_FILTER_TYPE_SIZE,
+};
 
 @protocol ARSPopoverDelegate <NSObject>
 
@@ -29,10 +34,12 @@
  */
 - (void)popoverPresentationControllerDidDismissPopover:(UIPopoverPresentationController *)popoverPresentationController;
 
+- (void)updateSelectedFilter:(SVOD_FILTER_TYPE) filter;
+
 @end
 
 
-@interface ARSPopover : UIViewController
+@interface ARSPopover : UIViewController <UITableViewDataSource, UITableViewDelegate>
 
 /// Popover's delegate.
 @property (nonatomic, weak) id<ARSPopoverDelegate> delegate;
@@ -57,6 +64,8 @@
 
 ///The margins that define the portion of the screen in which it is permissible to display the popover.
 @property (nonatomic, assign) UIEdgeInsets popoverLayoutMargins;
+
+@property (nonatomic, assign) SVOD_FILTER_TYPE currentFilter;
 
 /*!
  Use this method to put your custom views into popover.
